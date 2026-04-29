@@ -3,231 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grammar Cards -ing/-ed</title>
+    <title>Premium Grammar Cards</title>
     <style>
         :root {
-            --bg: #f0f2f5;
-            --primary: #4a90e2;
-            --secondary: #357abd;
-            --card-ed: #ffffff;
-            --text: #2c3e50;
-            --shadow: 0 8px 20px rgba(0,0,0,0.15);
+            --bg-color: #f2f5f8;
+            --deck-grad: linear-gradient(145deg, #2c3e50, #1a252f);
+            --card-bg: #ffffff;
+            --accent-color: #3498db;
+            --text-main: #2c3e50;
+            --card-shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        header {
-            padding: 20px;
-            text-align: center;
-        }
-
-        .deck-container {
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            margin-bottom: 40px;
-        }
-
-        /* Стиль колоды */
-        .main-pile {
-            width: 140px;
-            height: 190px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: 4px solid white;
-            border-radius: 15px;
-            cursor: pointer;
+        .deck-area {
+            padding: 60px 0 40px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0 10px 0 #2a5a8e, var(--shadow);
-            transition: transform 0.1s, box-shadow 0.1s;
-            user-select: none;
+            width: 100%;
         }
 
-        .main-pile:active {
-            transform: translateY(5px);
-            box-shadow: 0 5px 0 #2a5a8e, var(--shadow);
+        .deck {
+            width: 130px;
+            height: 180px;
+            background: var(--deck-grad);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 
+                0 1px 0 #111,
+                0 2px 0 #111,
+                0 3px 0 #111,
+                0 4px 0 #111,
+                0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            border: 2px solid rgba(255,255,255,0.1);
         }
 
-        /* Игровое поле */
+        .deck:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #111, 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .deck::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+        }
+
         .table {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 20px;
             width: 90%;
-            max-width: 1000px;
-            padding: 20px;
+            max-width: 900px;
+            padding-bottom: 100px;
         }
 
-        /* Стиль вытянутой карты */
         .card {
             width: 140px;
             height: 190px;
-            background: var(--card-ed);
-            border-radius: 12px;
+            background: var(--card-bg);
+            border-radius: 10px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 15px;
             text-align: center;
-            box-shadow: var(--shadow);
-            animation: drawCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--card-shadow);
             position: relative;
-            cursor: default;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+            animation: cardAppear 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        @keyframes drawCard {
-            0% { opacity: 0; transform: scale(0.5) translateY(-100px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+        @keyframes cardAppear {
+            0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .card-word {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--primary);
+        .word {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
         }
 
-        .card-type {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #95a5a6;
-        }
-
-        .remove-btn {
+        .close-btn {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #f0f2f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #99a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
             background: #ff4757;
             color: white;
-            border: none;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .reset-btn {
+            pointer-events: auto;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.1);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .controls {
-            margin-top: auto;
-            padding: 40px;
-        }
-
-        .btn-reset {
-            background: none;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
             transition: 0.3s;
+            color: #778;
         }
 
-        .btn-reset:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .empty-msg {
-            color: #95a5a6;
-            font-style: italic;
+        .reset-btn:hover {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transform: rotate(180deg);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h2>Grammar Cards</h2>
-        <p>Нажми на колоду, чтобы вытянуть карту (-ed)</p>
-    </header>
-
-    <div class="deck-container">
-        <div class="main-pile" id="deck" onclick="drawCard()">
-            DECK
-        </div>
+    <div class="deck-area">
+        <div class="deck" id="deck" onclick="drawCard()"></div>
     </div>
 
-    <div class="table" id="table">
-        <!-- Сюда будут падать карты -->
-    </div>
+    <div class="table" id="table"></div>
 
-    <div class="controls">
-        <button class="btn-reset" onclick="resetGame()">Перемешать колоду</button>
+    <div class="footer">
+        <button class="reset-btn" onclick="resetGame()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        </button>
     </div>
 
     <script>
-        // Список слов из IMG_7850.jpeg
-        const wordList = [
+        const words = [
             'interested', 'bored', 'surprised', 'disappointed',
             'tired', 'excited', 'fascinated', 'shocked',
             'frightened', 'disgusted', 'annoyed', 'embarrassed',
             'worried', 'confused', 'amused', 'depressed'
         ];
 
-        let deck = [];
+        let currentDeck = [];
 
-        function shuffleDeck() {
-            deck = [...wordList].sort(() => Math.random() - 0.5);
-            updateDeckStatus();
-        }
-
-        function updateDeckStatus() {
-            const deckEl = document.getElementById('deck');
-            if (deck.length === 0) {
-                deckEl.style.opacity = '0.5';
-                deckEl.innerText = 'EMPTY';
-            } else {
-                deckEl.style.opacity = '1';
-                deckEl.innerText = deck.length;
-            }
+        function init() {
+            currentDeck = [...words].sort(() => Math.random() - 0.5);
+            document.getElementById('deck').style.opacity = "1";
+            document.getElementById('deck').style.cursor = "pointer";
         }
 
         function drawCard() {
-            if (deck.length === 0) {
-                alert('Колода пуста! Нажми "Перемешать", чтобы начать заново.');
-                return;
-            }
+            if (currentDeck.length === 0) return;
 
-            const word = deck.pop();
+            const word = currentDeck.pop();
             const table = document.getElementById('table');
-            
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
-            cardDiv.innerHTML = `
-                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                <div class="card-word">${word}</div>
-                <div class="card-type">-ed participle</div>
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="close-btn" onclick="this.parentElement.remove()">✕</div>
+                <div class="word">${word}</div>
             `;
-            
-            table.prepend(cardDiv); // Новая карта всегда в начале
-            updateDeckStatus();
+
+            table.prepend(card);
+
+            if (currentDeck.length === 0) {
+                document.getElementById('deck').style.opacity = "0.2";
+                document.getElementById('deck').style.cursor = "default";
+            }
         }
 
         function resetGame() {
             document.getElementById('table').innerHTML = '';
-            shuffleDeck();
+            init();
         }
 
-        // Инициализация при загрузке
-        shuffleDeck();
+        init();
     </script>
 </body>
 </html>
