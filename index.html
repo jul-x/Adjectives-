@@ -1,121 +1,233 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Online Grammar Game: Participles</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Cards -ing/-ed</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #e67e22; --success: #27ae60; }
-        body { font-family: 'Segoe UI', sans-serif; background: #ecf0f1; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        
-        /* Секция колоды -ED */
-        .deck-section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center; width: 320px; }
-        .card-ed { width: 150px; height: 210px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: bold; margin: 15px auto; cursor: pointer; transition: transform 0.6s; transform-style: preserve-3d; border: 5px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .card-ed.revealed { background: var(--accent); transform: rotateY(180deg); }
-        .card-ed span { transform: rotateY(180deg); }
+        :root {
+            --bg: #f0f2f5;
+            --primary: #4a90e2;
+            --secondary: #357abd;
+            --card-ed: #ffffff;
+            --text: #2c3e50;
+            --shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
 
-        /* Секция карт -ING на руках */
-        .ing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; max-width: 900px; width: 100%; }
-        .card-ing { background: white; border: 2px solid #bdc3c7; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .card-ing:hover { border-color: var(--primary); transform: translateY(-3px); }
-        .card-ing.disabled { opacity: 0.3; cursor: default; background: #ddd; }
-        
-        .status-bar { margin: 20px; font-size: 1.2rem; font-weight: bold; color: var(--primary); height: 1.5em; }
-        button#reset { margin-top: 30px; padding: 10px 20px; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .deck-container {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin-bottom: 40px;
+        }
+
+        /* Стиль колоды */
+        .main-pile {
+            width: 140px;
+            height: 190px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: 4px solid white;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 10px 0 #2a5a8e, var(--shadow);
+            transition: transform 0.1s, box-shadow 0.1s;
+            user-select: none;
+        }
+
+        .main-pile:active {
+            transform: translateY(5px);
+            box-shadow: 0 5px 0 #2a5a8e, var(--shadow);
+        }
+
+        /* Игровое поле */
+        .table {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        /* Стиль вытянутой карты */
+        .card {
+            width: 140px;
+            height: 190px;
+            background: var(--card-ed);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: drawCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: default;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        @keyframes drawCard {
+            0% { opacity: 0; transform: scale(0.5) translateY(-100px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .card-word {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .card-type {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #95a5a6;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .controls {
+            margin-top: auto;
+            padding: 40px;
+        }
+
+        .btn-reset {
+            background: none;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .empty-msg {
+            color: #95a5a6;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 
-    <h2>30 -ing and -ed participles</h2>
-    
-    <div class="deck-section">
-        <p><strong>Click to draw an -ED card</strong></p>
-        <div id="edCard" class="card-ed" onclick="drawCard()">DRAW</div>
-        <div id="edWordDisplay" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: var(--accent);"></div>
+    <header>
+        <h2>Grammar Cards</h2>
+        <p>Нажми на колоду, чтобы вытянуть карту (-ed)</p>
+    </header>
+
+    <div class="deck-container">
+        <div class="main-pile" id="deck" onclick="drawCard()">
+            DECK
+        </div>
     </div>
 
-    <div class="status-bar" id="statusBar">Draw a card to start!</div>
+    <div class="table" id="table">
+        <!-- Сюда будут падать карты -->
+    </div>
 
-    <div class="ing-grid" id="ingGrid"></div>
-
-    <button id="reset" onclick="initGame()">Restart Game</button>
+    <div class="controls">
+        <button class="btn-reset" onclick="resetGame()">Перемешать колоду</button>
+    </div>
 
     <script>
-        const words = [
-            {ing: 'interesting', ed: 'interested'}, {ing: 'boring', ed: 'bored'},
-            {ing: 'surprising', ed: 'surprised'}, {ing: 'disappointing', ed: 'disappointed'},
-            {ing: 'tiring', ed: 'tired'}, {ing: 'exciting', ed: 'excited'},
-            {ing: 'fascinating', ed: 'fascinated'}, {ing: 'shocking', ed: 'shocked'},
-            {ing: 'frightening', ed: 'frightened'}, {ing: 'disgusting', ed: 'disgusted'},
-            {ing: 'annoying', ed: 'annoyed'}, {ing: 'embarrassing', ed: 'embarrassed'},
-            {ing: 'worrying', ed: 'worried'}, {ing: 'confusing', ed: 'confused'},
-            {ing: 'amusing', ed: 'amused'}, {ing: 'depressing', ed: 'depressed'}
+        // Список слов из IMG_7850.jpeg
+        const wordList = [
+            'interested', 'bored', 'surprised', 'disappointed',
+            'tired', 'excited', 'fascinated', 'shocked',
+            'frightened', 'disgusted', 'annoyed', 'embarrassed',
+            'worried', 'confused', 'amused', 'depressed'
         ];
 
-        let edPile = [];
-        let currentEd = null;
+        let deck = [];
 
-        function initGame() {
-            edPile = [...words].sort(() => Math.random() - 0.5);
-            const ingGrid = document.getElementById('ingGrid');
-            ingGrid.innerHTML = '';
-            
-            // Создаем карточки -ING (из IMG_7850.jpeg)
-            words.map(w => w.ing).sort().forEach(word => {
-                const div = document.createElement('div');
-                div.className = 'card-ing';
-                div.innerText = word;
-                div.onclick = () => checkMatch(word, div);
-                ingGrid.appendChild(div);
-            });
+        function shuffleDeck() {
+            deck = [...wordList].sort(() => Math.random() - 0.5);
+            updateDeckStatus();
+        }
 
-            document.getElementById('edCard').innerText = 'DRAW';
-            document.getElementById('edCard').classList.remove('revealed');
-            document.getElementById('edWordDisplay').innerText = '';
-            document.getElementById('statusBar').innerText = 'Draw an -ED card';
-            currentEd = null;
+        function updateDeckStatus() {
+            const deckEl = document.getElementById('deck');
+            if (deck.length === 0) {
+                deckEl.style.opacity = '0.5';
+                deckEl.innerText = 'EMPTY';
+            } else {
+                deckEl.style.opacity = '1';
+                deckEl.innerText = deck.length;
+            }
         }
 
         function drawCard() {
-            if (currentEd) return; 
-            if (edPile.length === 0) {
-                alert("Game over! You matched all cards.");
+            if (deck.length === 0) {
+                alert('Колода пуста! Нажми "Перемешать", чтобы начать заново.');
                 return;
             }
 
-            const card = edPile.pop();
-            currentEd = card;
+            const word = deck.pop();
+            const table = document.getElementById('table');
             
-            const cardEl = document.getElementById('edCard');
-            cardEl.classList.add('revealed');
-            cardEl.innerHTML = `<span>${card.ed}</span>`;
-            document.getElementById('statusBar').innerText = "Find the matching -ING card!";
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.innerHTML = `
+                <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
+                <div class="card-word">${word}</div>
+                <div class="card-type">-ed participle</div>
+            `;
+            
+            table.prepend(cardDiv); // Новая карта всегда в начале
+            updateDeckStatus();
         }
 
-        function checkMatch(selectedIng, element) {
-            if (!currentEd) {
-                alert("Draw an -ED card first!");
-                return;
-            }
-
-            if (currentEd.ing === selectedIng) {
-                // Успешное совпадение согласно правилам IMG_7851
-                document.getElementById('statusBar').innerHTML = `<span style="color:green">Match! Now make a sentence!</span>`;
-                element.classList.add('disabled');
-                
-                // Даем время прочитать и составить предложение
-                setTimeout(() => {
-                    currentEd = null;
-                    const cardEl = document.getElementById('edCard');
-                    cardEl.classList.remove('revealed');
-                    cardEl.innerText = 'DRAW';
-                    document.getElementById('statusBar').innerText = "Draw next card...";
-                }, 2500);
-            } else {
-                document.getElementById('statusBar').innerHTML = `<span style="color:red">Wrong! Try again.</span>`;
-            }
+        function resetGame() {
+            document.getElementById('table').innerHTML = '';
+            shuffleDeck();
         }
 
-        initGame();
+        // Инициализация при загрузке
+        shuffleDeck();
     </script>
 </body>
 </html>
