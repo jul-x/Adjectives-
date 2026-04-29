@@ -1,100 +1,121 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>-ing vs -ed Participles Game</title>
+    <title>Online Grammar Game: Participles</title>
     <style>
-        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .game-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 800px; }
-        .card { background: white; border: 2px solid #ccc; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .card.selected { border-color: #007bff; background-color: #e7f3ff; }
-        .card.matched { background-color: #d4edda; border-color: #28a745; cursor: default; opacity: 0.7; }
-        .card.error { background-color: #f8d7da; border-color: #dc3545; }
-        h1 { color: #333; }
+        :root { --primary: #2c3e50; --accent: #e67e22; --success: #27ae60; }
+        body { font-family: 'Segoe UI', sans-serif; background: #ecf0f1; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        
+        /* Секция колоды -ED */
+        .deck-section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center; width: 320px; }
+        .card-ed { width: 150px; height: 210px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: bold; margin: 15px auto; cursor: pointer; transition: transform 0.6s; transform-style: preserve-3d; border: 5px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .card-ed.revealed { background: var(--accent); transform: rotateY(180deg); }
+        .card-ed span { transform: rotateY(180deg); }
+
+        /* Секция карт -ING на руках */
+        .ing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; max-width: 900px; width: 100%; }
+        .card-ing { background: white; border: 2px solid #bdc3c7; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .card-ing:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .card-ing.disabled { opacity: 0.3; cursor: default; background: #ddd; }
+        
+        .status-bar { margin: 20px; font-size: 1.2rem; font-weight: bold; color: var(--primary); height: 1.5em; }
+        button#reset { margin-top: 30px; padding: 10px 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h1>-ing and -ed Participles</h1>
-    <p>Match the pairs (e.g., boring + bored)</p>
+    <h2>30 -ing and -ed participles</h2>
+    
+    <div class="deck-section">
+        <p><strong>Click to draw an -ED card</strong></p>
+        <div id="edCard" class="card-ed" onclick="drawCard()">DRAW</div>
+        <div id="edWordDisplay" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: var(--accent);"></div>
+    </div>
 
-    <div class="game-container" id="gameBoard"></div>
+    <div class="status-bar" id="statusBar">Draw a card to start!</div>
+
+    <div class="ing-grid" id="ingGrid"></div>
+
+    <button id="reset" onclick="initGame()">Restart Game</button>
 
     <script>
-        const pairs = [
-            { ing: 'interesting', ed: 'interested' },
-            { ing: 'boring', ed: 'bored' },
-            { ing: 'surprising', ed: 'surprised' },
-            { ing: 'disappointing', ed: 'disappointed' },
-            { ing: 'tiring', ed: 'tired' },
-            { ing: 'exciting', ed: 'excited' },
-            { ing: 'fascinating', ed: 'fascinated' },
-            { ing: 'shocking', ed: 'shocked' },
-            { ing: 'frightening', ed: 'frightened' },
-            { ing: 'disgusting', ed: 'disgusted' }
+        const words = [
+            {ing: 'interesting', ed: 'interested'}, {ing: 'boring', ed: 'bored'},
+            {ing: 'surprising', ed: 'surprised'}, {ing: 'disappointing', ed: 'disappointed'},
+            {ing: 'tiring', ed: 'tired'}, {ing: 'exciting', ed: 'excited'},
+            {ing: 'fascinating', ed: 'fascinated'}, {ing: 'shocking', ed: 'shocked'},
+            {ing: 'frightening', ed: 'frightened'}, {ing: 'disgusting', ed: 'disgusted'},
+            {ing: 'annoying', ed: 'annoyed'}, {ing: 'embarrassing', ed: 'embarrassed'},
+            {ing: 'worrying', ed: 'worried'}, {ing: 'confusing', ed: 'confused'},
+            {ing: 'amusing', ed: 'amused'}, {ing: 'depressing', ed: 'depressed'}
         ];
 
-        let cards = [];
-        pairs.forEach(p => {
-            cards.push({ text: p.ing, match: p.ed, type: 'ing' });
-            cards.push({ text: p.ed, match: p.ing, type: 'ed' });
-        });
+        let edPile = [];
+        let currentEd = null;
 
-        // Shuffle cards (using a logic similar to your dice game)
-        cards.sort(() => Math.random() - 0.5);
-
-        const board = document.getElementById('gameBoard');
-        let selectedCards = [];
-
-        function createBoard() {
-            cards.forEach((card, index) => {
-                const cardElement = document.createElement('div');
-                cardElement.classList.add('card');
-                cardElement.innerText = card.text;
-                cardElement.dataset.index = index;
-                cardElement.onclick = () => handleCardClick(cardElement, card);
-                board.appendChild(cardElement);
+        function initGame() {
+            edPile = [...words].sort(() => Math.random() - 0.5);
+            const ingGrid = document.getElementById('ingGrid');
+            ingGrid.innerHTML = '';
+            
+            // Создаем карточки -ING (из IMG_7850.jpeg)
+            words.map(w => w.ing).sort().forEach(word => {
+                const div = document.createElement('div');
+                div.className = 'card-ing';
+                div.innerText = word;
+                div.onclick = () => checkMatch(word, div);
+                ingGrid.appendChild(div);
             });
+
+            document.getElementById('edCard').innerText = 'DRAW';
+            document.getElementById('edCard').classList.remove('revealed');
+            document.getElementById('edWordDisplay').innerText = '';
+            document.getElementById('statusBar').innerText = 'Draw an -ED card';
+            currentEd = null;
         }
 
-        function handleCardClick(element, card) {
-            if (element.classList.contains('matched') || selectedCards.includes(element)) return;
-
-            element.classList.add('selected');
-            selectedCards.push(element);
-
-            if (selectedCards.length === 2) {
-                checkMatch();
+        function drawCard() {
+            if (currentEd) return; 
+            if (edPile.length === 0) {
+                alert("Game over! You matched all cards.");
+                return;
             }
+
+            const card = edPile.pop();
+            currentEd = card;
+            
+            const cardEl = document.getElementById('edCard');
+            cardEl.classList.add('revealed');
+            cardEl.innerHTML = `<span>${card.ed}</span>`;
+            document.getElementById('statusBar').innerText = "Find the matching -ING card!";
         }
 
-        function checkMatch() {
-            const [card1, card2] = selectedCards;
-            const text1 = card1.innerText;
-            const text2 = card2.innerText;
+        function checkMatch(selectedIng, element) {
+            if (!currentEd) {
+                alert("Draw an -ED card first!");
+                return;
+            }
 
-            const isMatch = pairs.some(p => 
-                (p.ing === text1 && p.ed === text2) || (p.ed === text1 && p.ing === text2)
-            );
-
-            if (isMatch) {
-                selectedCards.forEach(c => {
-                    c.classList.remove('selected');
-                    c.classList.add('matched');
-                });
-            } else {
-                selectedCards.forEach(c => c.classList.add('error'));
+            if (currentEd.ing === selectedIng) {
+                // Успешное совпадение согласно правилам IMG_7851
+                document.getElementById('statusBar').innerHTML = `<span style="color:green">Match! Now make a sentence!</span>`;
+                element.classList.add('disabled');
+                
+                // Даем время прочитать и составить предложение
                 setTimeout(() => {
-                    selectedCards.forEach(c => {
-                        c.classList.remove('selected', 'error');
-                    });
-                }, 1000);
+                    currentEd = null;
+                    const cardEl = document.getElementById('edCard');
+                    cardEl.classList.remove('revealed');
+                    cardEl.innerText = 'DRAW';
+                    document.getElementById('statusBar').innerText = "Draw next card...";
+                }, 2500);
+            } else {
+                document.getElementById('statusBar').innerHTML = `<span style="color:red">Wrong! Try again.</span>`;
             }
-            selectedCards = [];
         }
 
-        createBoard();
+        initGame();
     </script>
 </body>
 </html>
