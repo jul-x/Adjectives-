@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>-ing vs -ed Participles Game</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .game-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 800px; }
+        .card { background: white; border: 2px solid #ccc; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .card.selected { border-color: #007bff; background-color: #e7f3ff; }
+        .card.matched { background-color: #d4edda; border-color: #28a745; cursor: default; opacity: 0.7; }
+        .card.error { background-color: #f8d7da; border-color: #dc3545; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+
+    <h1>-ing and -ed Participles</h1>
+    <p>Match the pairs (e.g., boring + bored)</p>
+
+    <div class="game-container" id="gameBoard"></div>
+
+    <script>
+        const pairs = [
+            { ing: 'interesting', ed: 'interested' },
+            { ing: 'boring', ed: 'bored' },
+            { ing: 'surprising', ed: 'surprised' },
+            { ing: 'disappointing', ed: 'disappointed' },
+            { ing: 'tiring', ed: 'tired' },
+            { ing: 'exciting', ed: 'excited' },
+            { ing: 'fascinating', ed: 'fascinated' },
+            { ing: 'shocking', ed: 'shocked' },
+            { ing: 'frightening', ed: 'frightened' },
+            { ing: 'disgusting', ed: 'disgusted' }
+        ];
+
+        let cards = [];
+        pairs.forEach(p => {
+            cards.push({ text: p.ing, match: p.ed, type: 'ing' });
+            cards.push({ text: p.ed, match: p.ing, type: 'ed' });
+        });
+
+        // Shuffle cards (using a logic similar to your dice game)
+        cards.sort(() => Math.random() - 0.5);
+
+        const board = document.getElementById('gameBoard');
+        let selectedCards = [];
+
+        function createBoard() {
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.innerText = card.text;
+                cardElement.dataset.index = index;
+                cardElement.onclick = () => handleCardClick(cardElement, card);
+                board.appendChild(cardElement);
+            });
+        }
+
+        function handleCardClick(element, card) {
+            if (element.classList.contains('matched') || selectedCards.includes(element)) return;
+
+            element.classList.add('selected');
+            selectedCards.push(element);
+
+            if (selectedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = selectedCards;
+            const text1 = card1.innerText;
+            const text2 = card2.innerText;
+
+            const isMatch = pairs.some(p => 
+                (p.ing === text1 && p.ed === text2) || (p.ed === text1 && p.ing === text2)
+            );
+
+            if (isMatch) {
+                selectedCards.forEach(c => {
+                    c.classList.remove('selected');
+                    c.classList.add('matched');
+                });
+            } else {
+                selectedCards.forEach(c => c.classList.add('error'));
+                setTimeout(() => {
+                    selectedCards.forEach(c => {
+                        c.classList.remove('selected', 'error');
+                    });
+                }, 1000);
+            }
+            selectedCards = [];
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
